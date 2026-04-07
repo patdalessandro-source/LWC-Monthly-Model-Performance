@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Performance | LiveWell Capital</title>
+<style>
+  /* ── Brand Tokens ── */
+  :root {
+    --navy:      #163F5F;
+    --blue:      #2F6FA3;
+    --ltblue:    #A9C8E3;
+    --charcoal:  #2B2B2B;
+    --offwhite:  #F7F8FA;
+    --ltgray:    #E8ECF0;
+    --white:     #FFFFFF;
+    --red:       #C0392B;
+    --green:     #1A6B3C;
+    --font:      'Helvetica Neue', Arial, sans-serif;
+  }
+
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--offwhite);
+    color: var(--charcoal);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  /* ── Top Bar ── */
+  .topbar {
+    background: var(--navy);
+    color: var(--ltblue);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 7px 24px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--white);
+    border-bottom: 3px solid var(--navy);
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .logo-lockup {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+  }
+  .logo-mark {
+    width: 54px;
+    height: 54px;
+    border: 2px solid var(--navy);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .logo-mark::after {
+    content: '';
+    position: absolute;
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid var(--ltblue);
+    border-radius: 50%;
+  }
+  .logo-lw {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 3px;
+    text-align: center;
+  }
+  .logo-lw span { display: block; }
+  .logo-text { line-height: 1; }
+  .logo-text .brand-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--navy);
+    display: block;
+    line-height: 1;
+  }
+  .logo-text .brand-cap {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 6px;
+    color: var(--navy);
+    display: block;
+  }
+  .logo-text .brand-sub {
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--blue);
+    display: block;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .as-of {
+    font-size: 11px;
+    color: var(--blue);
+    letter-spacing: 0.5px;
+  }
+  .as-of strong { color: var(--navy); }
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-download:hover { background: var(--blue); }
+  .btn-download svg { flex-shrink: 0; }
+
+  /* ── Page Title Band ── */
+  .page-title-band {
+    background: var(--navy);
+    padding: 32px 48px 28px;
+  }
+  .page-title-band .eyebrow {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ltblue);
+    margin-bottom: 6px;
+  }
+  .page-title-band h1 {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: 0.5px;
+  }
+  .page-title-band p {
+    font-size: 13px;
+    color: var(--ltblue);
+    margin-top: 8px;
+    max-width: 700px;
+    line-height: 1.5;
+  }
+
+  /* ── Filter Tabs ── */
+  .filter-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--ltgray);
+    padding: 0 48px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .filter-btn {
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--charcoal);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 16px 20px 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .filter-btn:hover { color: var(--blue); }
+  .filter-btn.active {
+    color: var(--navy);
+    border-bottom-color: var(--blue);
+  }
+
+  /* ── Main Layout ── */
+  main {
+    padding: 32px 48px 64px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Section Label ── */
+  .section-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+    margin-top: 36px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--ltgray);
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  /* ── Performance Table ── */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  thead tr {
+    background: var(--navy);
+  }
+  thead th {
+    color: var(--white);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 11px 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  thead th:first-child { text-align: left; padding-left: 16px; min-width: 260px; }
+  thead th.sub {
+    background: var(--blue);
+    font-size: 9px;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--ltgray);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  tbody tr:nth-child(even) { background: var(--offwhite); }
+  tbody tr:nth-child(odd)  { background: var(--white); }
+  tbody tr:hover { background: #EBF3FA; }
+  tbody tr.active-row { background: #D6E9F5 !important; }
+
+  tbody td {
+    padding: 10px 12px;
+    text-align: right;
+    color: var(--charcoal);
+    white-space: nowrap;
+  }
+  tbody td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  .val-pos { color: var(--green); }
+  .val-neg { color: var(--red); }
+  .val-na  { color: #aaa; font-style: italic; }
+  .expense { color: var(--blue); font-size: 11.5px; }
+
+  /* divider row */
+  tr.group-divider td {
+    padding: 0;
+    height: 1px;
+    background: var(--ltblue);
+  }
+
+  /* ── Tearsheet Panel ── */
+  #tearsheet-panel {
+    display: none;
+    margin-top: 28px;
+    background: var(--white);
+    border: 1px solid var(--ltgray);
+    border-top: 4px solid var(--navy);
+    padding: 32px 36px;
+    position: relative;
+  }
+  #tearsheet-panel.visible { display: block; }
+
+  .ts-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--blue);
+    background: none;
+    border: 1px solid var(--ltgray);
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  .ts-close:hover { background: var(--offwhite); }
+
+  .ts-header { margin-bottom: 24px; }
+  .ts-eyebrow {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .ts-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .ts-meta {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .ts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+
+  /* stat tiles */
+  .ts-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-tile {
+    background: var(--offwhite);
+    border-left: 3px solid var(--navy);
+    padding: 14px 16px;
+  }
+  .stat-tile .st-label {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .stat-tile .st-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .stat-tile .st-val.neg { color: var(--red); }
+  .stat-tile .st-val.pos { color: var(--green); }
+  .stat-tile .st-sub {
+    font-size: 10px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  /* bar chart */
+  .ts-chart-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 16px;
+  }
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 140px;
+    border-bottom: 2px solid var(--navy);
+    padding-bottom: 0;
+    margin-bottom: 8px;
+  }
+  .bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    position: relative;
+  }
+  .bar {
+    width: 100%;
+    min-height: 2px;
+    position: relative;
+    transition: opacity 0.15s;
+  }
+  .bar:hover { opacity: 0.8; }
+  .bar-pos { background: var(--navy); }
+  .bar-neg {
+    background: var(--red);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+  .bar-label-top {
+    font-size: 9px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .bar-period {
+    font-size: 9px;
+    color: #777;
+    text-align: center;
+    margin-top: 6px;
+    white-space: nowrap;
+  }
+  .bar-chart-wrap { position: relative; margin-bottom: 24px; }
+  .zero-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--navy);
+  }
+
+  /* drawdown bar */
+  .drawdown-section { margin-bottom: 0; }
+  .drawdown-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .dd-track {
+    background: var(--ltgray);
+    height: 20px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .dd-fill {
+    background: var(--red);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    transition: width 0.4s ease;
+  }
+  .dd-fill span {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--white);
+    white-space: nowrap;
+  }
+  .dd-context {
+    font-size: 10px;
+    color: #888;
+    margin-top: 6px;
+  }
+
+  /* full return table inside tearsheet */
+  .ts-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ts-table th {
+    background: var(--navy);
+    color: var(--white);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: right;
+  }
+  .ts-table th:first-child { text-align: left; }
+  .ts-table td {
+    padding: 9px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--ltgray);
+  }
+  .ts-table td:first-child { text-align: left; color: var(--navy); font-weight: 600; }
+  .ts-table tr:nth-child(even) { background: var(--offwhite); }
+
+  /* ── Index Section ── */
+  .index-note {
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+
+  /* ── Disclaimer ── */
+  .disclaimer {
+    background: var(--white);
+    border-top: 1px solid var(--ltgray);
+    padding: 24px 48px;
+    font-size: 10px;
+    color: #888;
+    line-height: 1.6;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .disclaimer strong { color: var(--navy); }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--navy);
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  footer .ft-brand {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+  footer .ft-sub {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--ltblue);
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+  footer .ft-right {
+    font-size: 10px;
+    color: var(--ltblue);
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  /* ── Tearsheet Link Button ── */
+  .ts-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue);
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 10px 20px;
+    margin-top: 16px;
+    border: none;
+    transition: background 0.15s;
+  }
+  .ts-link-btn:hover { background: var(--navy); }
+  .ts-no-link {
+    display: inline-block;
+    font-size: 11px;
+    color: #aaa;
+    font-style: italic;
+    margin-top: 16px;
+  }
+
+  /* ── Hidden filter targets ── */
+  .data-section { }
+  .data-section.hidden { display: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    header, main, .filter-bar, .page-title-band, .disclaimer, footer {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+    .ts-stats { grid-template-columns: repeat(2, 1fr); }
+    .ts-grid  { grid-template-columns: 1fr; }
+    .header-right { flex-direction: column; align-items: flex-end; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">LiveWell Capital &nbsp;·&nbsp; Northwestern Mutual Private Client Group &nbsp;·&nbsp; For Advisor Use Only</div>
+
+<!-- Header -->
+<header>
+  <div class="logo-lockup">
+    <div class="logo-mark">
+      <div class="logo-lw"><span>L</span><span>W</span></div>
+    </div>
+    <div class="logo-text">
+      <span class="brand-name">LIVE WELL</span>
+      <span class="brand-cap">CAPITAL</span>
+      <span class="brand-sub">Northwestern Mutual &nbsp;·&nbsp; Private Client Group</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="as-of">Data as of &nbsp;<strong id="as-of-date">March 31, 2026</strong></div>
+    <a href="LWC_Model_Performance_4-1.pdf" class="btn-download" download>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Download PDF
+    </a>
+  </div>
+</header>
+
+<!-- Page Title -->
+<div class="page-title-band">
+  <div class="eyebrow">Performance &nbsp;·&nbsp; Monthly Update</div>
+  <h1>LWC Model Performance</h1>
+  <p>Total return data across all LiveWell Capital portfolio models and separately managed accounts. Click any row to view a detailed tearsheet. Updated monthly.</p>
+</div>
+
+<!-- Filter Tabs -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterSection('all', this)">All Models</button>
+  <button class="filter-btn" onclick="filterSection('core', this)">LWC Core</button>
+  <button class="filter-btn" onclick="filterSection('private-client', this)">Private Client</button>
+  <button class="filter-btn" onclick="filterSection('private-capital', this)">Private Capital</button>
+  <button class="filter-btn" onclick="filterSection('retirement', this)">Retirement Income</button>
+  <button class="filter-btn" onclick="filterSection('sma', this)">Separately Managed Accounts</button>
+  <button class="filter-btn" onclick="filterSection('index', this)">Index Benchmarks</button>
+</div>
+
+<!-- Main Content -->
+<main>
+
+  <!-- ── LWC CORE ── -->
+  <div class="data-section" id="sec-core">
+    <div class="section-label">LWC Core Portfolios</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Portfolio</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>1 Year</th>
+            <th>3 Year</th>
+            <th>5 Year</th>
+            <th>10 Year</th>
+            <th>Max DD (10yr)</th>
+            <th class="sub">Net Exp Ratio</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-core"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PRIVATE CLIENT ── -->
+  <div class="data-section" id="sec-private-client">
+    <div class="section-label">LWC Private Client Portfolios</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Portfolio</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>1 Year</th>
+            <th>3 Year</th>
+            <th>5 Year</th>
+            <th>10 Year</th>
+            <th>Max DD (10yr)</th>
+            <th class="sub">Net Exp Ratio</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-private-client"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PRIVATE CAPITAL ── -->
+  <div class="data-section" id="sec-private-capital">
+    <div class="section-label">LWC Private Capital Portfolios</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Portfolio</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>1 Year</th>
+            <th>3 Year</th>
+            <th>5 Year</th>
+            <th>10 Year</th>
+            <th>Max DD (10yr)</th>
+            <th class="sub">Net Exp Ratio</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-private-capital"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── RETIREMENT ── -->
+  <div class="data-section" id="sec-retirement">
+    <div class="section-label">LWC Retirement Income Portfolios</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Portfolio</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>1 Year</th>
+            <th>3 Year</th>
+            <th>5 Year</th>
+            <th>10 Year</th>
+            <th>Max DD (10yr)</th>
+            <th class="sub">Net Exp Ratio</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-retirement"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── SMA ── -->
+  <div class="data-section" id="sec-sma">
+    <div class="section-label">Separately Managed Accounts</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>1 Year</th>
+            <th>3 Year</th>
+            <th>5 Year</th>
+            <th>10 Year</th>
+            <th>Max DD (10yr)</th>
+            <th class="sub">Mgmt Fee</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-sma"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── INDEXES ── -->
+  <div class="data-section" id="sec-index">
+    <div class="section-label">Index Benchmarks</div>
+    <p class="index-note">Indexes are unmanaged and do not reflect fees or expenses. Provided for reference only.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>1 Mo</th>
+            <th>YTD</th>
+            <th>1 Year</th>
+            <th>3 Year</th>
+            <th>5 Year</th>
+            <th>10 Year</th>
+            <th>Max DD (10yr)</th>
+            <th class="sub">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-index"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── TEARSHEET PANEL ── -->
+  <div id="tearsheet-panel">
+    <button class="ts-close" onclick="closeTearsheet()">&#10005; &nbsp;Close</button>
+    <div class="ts-header">
+      <div class="ts-eyebrow" id="ts-eyebrow">Portfolio Tearsheet</div>
+      <div class="ts-title" id="ts-title">—</div>
+      <div class="ts-meta" id="ts-meta">—</div>
+      <div id="ts-link-slot"></div>
+    </div>
+
+    <!-- Key Stats -->
+    <div class="ts-stats" id="ts-stats"></div>
+
+    <div class="ts-grid">
+      <!-- Bar Chart -->
+      <div>
+        <div class="ts-chart-title">Total Return by Period</div>
+        <div class="bar-chart-wrap">
+          <div class="bar-chart" id="ts-bar-chart"></div>
+        </div>
+        <div id="ts-bar-periods" style="display:flex;gap:8px;"></div>
+      </div>
+      <!-- Drawdown + Full Table -->
+      <div>
+        <div class="drawdown-section">
+          <div class="drawdown-label">Max Drawdown (10-Year)</div>
+          <div class="dd-track">
+            <div class="dd-fill" id="dd-fill"><span id="dd-val">—</span></div>
+          </div>
+          <div class="dd-context" id="dd-context">—</div>
+        </div>
+        <div style="margin-top:24px;">
+          <div class="ts-chart-title">Full Return Summary</div>
+          <table class="ts-table" id="ts-full-table"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Disclaimer -->
+<div class="disclaimer">
+  <strong>Important Disclosures:</strong> Past performance is not indicative of future results. All returns are total return, net of fund-level expenses. The Net Expense Ratio reflects fund-level costs and does not include advisory fees, which vary by client. Max Drawdown reflects the largest peak-to-trough decline over the trailing 10-year period. Separately Managed Accounts show a Management Fee in addition to underlying investment costs. Index returns are provided for informational purposes only; indexes are unmanaged, do not incur fees, and cannot be invested in directly. Portfolio inception dates vary; periods prior to inception are not shown. This material is for advisor use only and is not intended for distribution to clients or the general public. LiveWell Capital is a wealth management practice affiliated with Northwestern Mutual and NMFCO.
+</div>
+
+<!-- Footer -->
+<footer>
+  <div>
+    <div class="ft-brand">LiveWell Capital</div>
+    <div class="ft-sub">Northwestern Mutual &nbsp;·&nbsp; Private Client Group</div>
+  </div>
+  <div class="ft-right">
+    Data as of <span id="footer-date">March 31, 2026</span><br>
+    Updated Monthly &nbsp;·&nbsp; For Advisor Use Only
+  </div>
+</footer>
+
+<script>
+/* ================================================================
+   DATA — update monthly
+   Fields: name, mo1, ytd, y1, y3, y5, y10, maxdd, expense
+   Use null for N/A periods. Positive = %, negative = %.
+   All values stored as plain numbers (e.g. -2.75 = -2.75%)
+================================================================ */
+/* ── SharePoint tearsheet base path ── */
+const SP_BASE = "https://nmfco.sharepoint.com/:b:/r/sites/ec-lwc/Shared%20Documents/Operations/Portfolio%20Resources/Models%20for%20Y-Charts/Tearsheets%20Y-Charts%20ENV2%20models/";
+function spLink(filename) {
+  return SP_BASE + encodeURIComponent(filename) + "?csf=1&web=1";
+}
+
+const DATA = {
+  asOf: "March 31, 2026",
+
+  core: [
+    { name:".LWC Core 20/80",  mo1:-2.75, ytd:0.14,  y1:6.59,  y3:5.07,  y5:2.45, y10:4.39, maxdd:-13.7, expense:0.20, tearsheet: spLink(".LWC Core 2080.pdf") },
+    { name:".LWC Core 30/70",  mo1:-2.85, ytd:0.50,  y1:8.21,  y3:6.11,  y5:3.30, y10:5.07, maxdd:-14.4, expense:0.20, tearsheet: spLink(".LWC Core 3070.pdf") },
+    { name:".LWC Core 40/60",  mo1:-3.18, ytd:1.30,  y1:10.35, y3:7.24,  y5:3.94, y10:5.94, maxdd:-15.9, expense:0.20, tearsheet: spLink(".LWC Core 4060.pdf") },
+    { name:".LWC Core 50/50",  mo1:-3.48, ytd:0.73,  y1:11.10, y3:8.26,  y5:4.70, y10:6.79, maxdd:-17.5, expense:0.19, tearsheet: spLink(".LWC Core 5050.pdf") },
+    { name:".LWC Core 60/40",  mo1:-3.76, ytd:0.81,  y1:12.88, y3:9.58,  y5:5.58, y10:7.69, maxdd:-20.7, expense:0.19, tearsheet: spLink(".LWC Core 6040.pdf") },
+    { name:".LWC Core 70/30",  mo1:-4.15, ytd:0.73,  y1:14.63, y3:10.93, y5:6.49, y10:8.82, maxdd:-24.0, expense:0.18, tearsheet: spLink(".LWC Core 7030.pdf") },
+    { name:".LWC Core 80/20",  mo1:-4.64, ytd:0.82,  y1:16.62, y3:12.10, y5:7.19, y10:9.56, maxdd:-27.4, expense:0.19, tearsheet: spLink(".LWC Core 8020.pdf") },
+    { name:".LWC Core 90/10",  mo1:-5.04, ytd:0.87,  y1:18.53, y3:13.32, y5:7.93, y10:10.36,maxdd:-30.9, expense:0.18, tearsheet: spLink(".LWC Core 9010.pdf") },
+    { name:".LWC Core 98/2",   mo1:-5.64, ytd:0.68,  y1:20.98, y3:14.99, y5:8.80, y10:10.98,maxdd:-34.0, expense:0.18, tearsheet: spLink(".LWC Core 982.pdf") },
+  ],
+
+  privateClient: [
+    { name:".LWC Private Client 60/40", mo1:-3.67, ytd:0.08, y1:12.49, y3:10.22, y5:5.99, y10:7.97, maxdd:-20.7, expense:0.18, tearsheet: spLink(".LWC Private Client 6040.pdf") },
+    { name:".LWC Private Client 70/30", mo1:-4.08, ytd:0.05, y1:14.27, y3:11.73, y5:7.04, y10:9.21, maxdd:-28.0, expense:0.17, tearsheet: spLink(".LWC Private Client 7030.pdf") },
+    { name:".LWC Private Client 80/20", mo1:-4.54, ytd:0.12, y1:15.82, y3:12.96, y5:7.91, y10:10.16,maxdd:-30.9, expense:0.18, tearsheet: spLink(".LWC Private Client 8020.pdf") },
+    { name:".LWC Private Client 90/10", mo1:-4.91, ytd:0.29, y1:17.92, y3:14.16, y5:8.65, y10:10.73,maxdd:-32.9, expense:0.17, tearsheet: spLink(".LWC Private Client 9010.pdf") },
+  ],
+
+  privateCapital: [
+    { name:".LWC Private Capital 10% (60/40 Risk Equiv)", mo1:-3.71, ytd:0.16,  y1:12.05, y3:10.58, y5:6.04, y10:8.05, maxdd:-22.8, expense:0.30, tearsheet: spLink("LWC Private Capital 10% 60_40 Risk Equivalent.pdf") },
+    { name:".LWC Private Capital 15% (70/30 Risk Equiv)", mo1:-4.13, ytd:-0.53, y1:13.05, y3:11.67, y5:6.74, y10:8.88, maxdd:-26.1, expense:0.32, tearsheet: spLink("LWC Private Capital 15% 70_30 Risk Equivalent.pdf") },
+    { name:".LWC Private Capital 20% (80/20 Risk Equiv)", mo1:-4.73, ytd:-1.08, y1:14.02, y3:12.34, y5:6.77, y10:9.26, maxdd:-30.2, expense:0.40, tearsheet: spLink("LWC Private Capital 20% 80_20 Risk Equivalent.pdf") },
+  ],
+
+  retirement: [
+    { name:".LWC 5% Retirement Income (50/50)", mo1:-3.14, ytd:0.82, y1:11.64, y3:8.69,  y5:4.43, y10:6.51, maxdd:-19.1, expense:0.16, tearsheet: spLink("5% Retirement Income 5050.pdf") },
+    { name:".LWC 4% Retirement Income (60/40)", mo1:-3.50, ytd:0.87, y1:13.35, y3:9.89,  y5:5.36, y10:7.47, maxdd:-19.8, expense:0.17, tearsheet: spLink("4% Retirement Income 6040.pdf") },
+    { name:".LWC 3% Retirement Income (70/30)", mo1:-3.96, ytd:0.78, y1:15.05, y3:11.24, y5:6.37, y10:8.49, maxdd:-20.6, expense:0.17, tearsheet: spLink("3% Retirement Income 7030.pdf") },
+    { name:".LWC 7-Year Protected Income",       mo1:-1.32, ytd:-0.28,y1:4.29,  y3:4.18,  y5:1.24, y10:2.48, maxdd:-15.5, expense:0.15, tearsheet: spLink(".LWC 7 Year Protected Income.pdf") },
+  ],
+
+  sma: [
+    { name:"Capital Group Global Equity SMA",        mo1:1.14,  ytd:3.71,  y1:25.65, y3:18.75, y5:11.30, y10:13.68, maxdd:-26.5, expense:0.37, note:null },
+    { name:"Capital Group Global Growth SMA",        mo1:-0.26, ytd:1.90,  y1:22.09, y3:20.97, y5:10.25, y10:15.26, maxdd:-33.4, expense:0.37, note:null },
+    { name:"Russell Personalized DI Core Equity SMA",mo1:0.90,  ytd:20.50, y1:20.50, y3:null,  y5:null,  y10:null,  maxdd:null,  expense:0.22, note:"Inception 6/1/2022" },
+    { name:"Parametric CC US Large Cap — S&P 500",   mo1:-0.66, ytd:0.88,  y1:18.11, y3:21.72, y5:14.09, y10:15.41, maxdd:-24.0, expense:0.22, note:null },
+    { name:"Parametric CC US Broad Cap — Russell 3000",mo1:-0.41,ytd:1.12,  y1:16.81, y3:20.71, y5:12.86, y10:15.01, maxdd:-24.7, expense:0.22, note:null },
+    { name:"NMWMC Interm (1-10) Muni Bond Port",     mo1:0.77,  ytd:1.49,  y1:4.37,  y3:3.57,  y5:1.12,  y10:1.85,  maxdd:-11.0, expense:0.25, note:null },
+    { name:"NMWMC Intermediate (1-10) Govt/Credit",  mo1:1.58,  ytd:1.31,  y1:7.31,  y3:6.26,  y5:1.20,  y10:null,  maxdd:null,  expense:0.25, note:"Incept 7/1/2016" },
+    { name:"Parametric CC Technology 100 — TMW",     mo1:-2.48, ytd:-1.34, y1:21.32, y3:29.18, y5:15.52, y10:null,  maxdd:null,  expense:0.25, note:"Incept 3/1/2017" },
+  ],
+
+  index: [
+    { name:"S&P 500 Total Return",                  mo1:-4.98, ytd:-4.33, y1:17.80, y3:18.32, y5:12.06, y10:14.16, maxdd:-33.8 },
+    { name:"S&P 400 Total Return",                  mo1:-5.39, ytd:2.50,  y1:17.35, y3:12.09, y5:6.92,  y10:10.58, maxdd:-42.0 },
+    { name:"S&P 600 Total Return",                  mo1:-4.07, ytd:3.51,  y1:20.50, y3:10.51, y5:4.49,  y10:9.90,  maxdd:-44.4 },
+    { name:"MSCI EAFE Total Return",                mo1:-10.19,ytd:-1.12, y1:21.88, y3:14.19, y5:8.45,  y10:8.91,  maxdd:-33.9 },
+    { name:"MSCI Emerging Markets Total Return",    mo1:-13.03,ytd:-0.10, y1:30.30, y3:15.41, y5:4.16,  y10:8.24,  maxdd:-38.6 },
+    { name:"Dow Jones US Select REIT Index TR",     mo1:-5.67, ytd:4.64,  y1:7.23,  y3:9.15,  y5:5.59,  y10:4.76,  maxdd:-44.3 },
+    { name:"Bloomberg Commodity Index TR",          mo1:11.50, ytd:24.41, y1:32.29, y3:13.88, y5:14.04, y10:8.02,  maxdd:-67.3 },
+    { name:"Bloomberg US Treasury Bills 1-3 Month", mo1:0.30,  ytd:0.88,  y1:4.12,  y3:4.84,  y5:3.42,  y10:2.26,  maxdd:0.0 },
+    { name:"Bloomberg US Aggregate",                mo1:-1.76, ytd:-0.05, y1:4.35,  y3:3.63,  y5:0.31,  y10:1.70,  maxdd:-18.4 },
+  ]
+};
+
+/* ================================================================
+   HELPERS
+================================================================ */
+function fmt(v, suffix) {
+  if (v === null || v === undefined) return '<span class="val-na">—</span>';
+  const cls = v > 0 ? 'val-pos' : v < 0 ? 'val-neg' : '';
+  const sign = v > 0 ? '+' : '';
+  return `<span class="${cls}">${sign}${v.toFixed(2)}${suffix || '%'}</span>`;
+}
+function fmtExpense(v) {
+  if (v === null || v === undefined) return '<span class="val-na">—</span>';
+  return `<span class="expense">${v.toFixed(2)}%</span>`;
+}
+function raw(v) { return v !== null && v !== undefined ? v : null; }
+
+/* ================================================================
+   RENDER TABLES
+================================================================ */
+function renderTable(tbodyId, rows, isIndex) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  rows.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.name}${r.note ? ` <span style="font-size:9px;color:#aaa;font-weight:400;">(${r.note})</span>` : ''}</td>
+      <td>${fmt(raw(r.mo1))}</td>
+      <td>${fmt(raw(r.ytd))}</td>
+      <td>${fmt(raw(r.y1))}</td>
+      <td>${fmt(raw(r.y3))}</td>
+      <td>${fmt(raw(r.y5))}</td>
+      <td>${fmt(raw(r.y10))}</td>
+      <td>${fmt(raw(r.maxdd))}</td>
+      <td>${isIndex ? '<span class="val-na">—</span>' : fmtExpense(raw(r.expense))}</td>
+    `;
+    if (!isIndex) {
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', () => openTearsheet(r, tbodyId));
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+/* ================================================================
+   TEARSHEET
+================================================================ */
+let activeRow = null;
+let activeTbodyId = null;
+
+function openTearsheet(r, tbodyId) {
+  // highlight row
+  if (activeRow) activeRow.classList.remove('active-row');
+  // find the row by name
+  const tbody = document.getElementById(tbodyId);
+  if (tbody) {
+    Array.from(tbody.rows).forEach(row => {
+      if (row.cells[0] && row.cells[0].textContent.trim().startsWith(r.name.substring(0, 20))) {
+        row.classList.add('active-row');
+        activeRow = row;
+      }
+    });
+  }
+  activeTbodyId = tbodyId;
+
+  const panel = document.getElementById('tearsheet-panel');
+  panel.classList.add('visible');
+
+  // determine category label
+  let cat = 'Portfolio Tearsheet';
+  if (tbodyId === 'tbody-sma') cat = 'Separately Managed Account';
+
+  document.getElementById('ts-eyebrow').textContent = cat;
+  document.getElementById('ts-title').textContent = r.name;
+  document.getElementById('ts-meta').textContent = `Data as of ${DATA.asOf}${r.note ? '  ·  ' + r.note : ''}`;
+
+  // Tearsheet link
+  const linkSlot = document.getElementById('ts-link-slot');
+  if (r.tearsheet) {
+    linkSlot.innerHTML = `<a href="${r.tearsheet}" target="_blank" rel="noopener" class="ts-link-btn">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M6.5 1v7M4 5.5l2.5 2.5 2.5-2.5M1.5 10.5h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      View YCharts Tearsheet (SharePoint)
+    </a>`;
+  } else {
+    linkSlot.innerHTML = `<span class="ts-no-link">Tearsheet not available for this account</span>`;
+  }
+
+  // --- Stats tiles ---
+  const periods = [
+    { label:'1 Month', val: r.mo1 },
+    { label:'YTD',     val: r.ytd },
+    { label:'1 Year',  val: r.y1  },
+    { label:'3 Year',  val: r.y3  },
+  ];
+  const statsEl = document.getElementById('ts-stats');
+  statsEl.innerHTML = periods.map(p => {
+    const v = p.val;
+    const cls = v === null ? '' : v > 0 ? 'pos' : v < 0 ? 'neg' : '';
+    const sign = v !== null && v > 0 ? '+' : '';
+    const disp = v === null ? '—' : `${sign}${v.toFixed(2)}%`;
+    return `<div class="stat-tile">
+      <div class="st-label">${p.label}</div>
+      <div class="st-val ${cls}">${disp}</div>
+      <div class="st-sub">Total Return</div>
+    </div>`;
+  }).join('');
+
+  // --- Bar Chart ---
+  const chartPeriods = [
+    { label:'1 Mo', val: r.mo1 },
+    { label:'YTD',  val: r.ytd },
+    { label:'1 Yr', val: r.y1  },
+    { label:'3 Yr', val: r.y3  },
+    { label:'5 Yr', val: r.y5  },
+    { label:'10 Yr',val: r.y10 },
+  ].filter(p => p.val !== null && p.val !== undefined);
+
+  const maxAbs = Math.max(...chartPeriods.map(p => Math.abs(p.val)), 1);
+  const chartH = 130; // px available for bars
+
+  const chartEl = document.getElementById('ts-bar-chart');
+  chartEl.innerHTML = '';
+  const periodsEl = document.getElementById('ts-bar-periods');
+  periodsEl.innerHTML = '';
+
+  chartPeriods.forEach(p => {
+    const barH = Math.max(Math.round((Math.abs(p.val) / maxAbs) * chartH), 3);
+    const isPos = p.val >= 0;
+    const color = isPos ? 'var(--navy)' : 'var(--red)';
+    const sign = p.val > 0 ? '+' : '';
+    const labelColor = isPos ? 'var(--navy)' : 'var(--red)';
+
+    const group = document.createElement('div');
+    group.className = 'bar-group';
+    group.innerHTML = `
+      <div class="bar-label-top" style="color:${labelColor}">${sign}${p.val.toFixed(2)}%</div>
+      <div class="bar" style="height:${barH}px;background:${color};width:100%;"></div>
+    `;
+    chartEl.appendChild(group);
+
+    const period = document.createElement('div');
+    period.className = 'bar-period';
+    period.style.flex = '1';
+    period.textContent = p.label;
+    periodsEl.appendChild(period);
+  });
+
+  // --- Drawdown ---
+  const ddEl = document.getElementById('dd-fill');
+  const ddValEl = document.getElementById('dd-val');
+  const ddCtx = document.getElementById('dd-context');
+
+  if (r.maxdd !== null && r.maxdd !== undefined) {
+    const pct = Math.min(Math.abs(r.maxdd), 100);
+    ddEl.style.width = pct + '%';
+    ddValEl.textContent = r.maxdd.toFixed(1) + '%';
+    ddCtx.textContent = `Max peak-to-trough decline over trailing 10-year period`;
+  } else {
+    ddEl.style.width = '0%';
+    ddValEl.textContent = '—';
+    ddCtx.textContent = 'Insufficient history for 10-year drawdown calculation';
+  }
+
+  // --- Full Return Table ---
+  const fullRows = [
+    ['1 Month (Trailing)', r.mo1],
+    ['Year-to-Date',       r.ytd],
+    ['1 Year',             r.y1 ],
+    ['3 Year (Annualized)',r.y3 ],
+    ['5 Year (Annualized)',r.y5 ],
+    ['10 Year (Annualized)',r.y10],
+    ['Max Drawdown (10-yr)',r.maxdd],
+    [tbodyId === 'tbody-sma' ? 'Mgmt Fee' : 'Net Expense Ratio', r.expense],
+  ];
+  const ftEl = document.getElementById('ts-full-table');
+  ftEl.innerHTML = `<thead><tr><th>Period</th><th>Return</th></tr></thead>
+  <tbody>
+  ${fullRows.map(row => {
+    const isRate = row[0].includes('Fee') || row[0].includes('Expense');
+    const disp = isRate ? fmtExpense(row[1]) : fmt(row[1]);
+    return `<tr><td>${row[0]}</td><td style="text-align:right">${disp}</td></tr>`;
+  }).join('')}
+  </tbody>`;
+
+  // scroll to panel
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function closeTearsheet() {
+  document.getElementById('tearsheet-panel').classList.remove('visible');
+  if (activeRow) { activeRow.classList.remove('active-row'); activeRow = null; }
+}
+
+/* ================================================================
+   FILTER
+================================================================ */
+function filterSection(which, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closeTearsheet();
+
+  const map = {
+    'core':            ['sec-core'],
+    'private-client':  ['sec-private-client'],
+    'private-capital': ['sec-private-capital'],
+    'retirement':      ['sec-retirement'],
+    'sma':             ['sec-sma'],
+    'index':           ['sec-index'],
+    'all':             ['sec-core','sec-private-client','sec-private-capital','sec-retirement','sec-sma','sec-index'],
+  };
+  const show = map[which] || map['all'];
+  document.querySelectorAll('.data-section').forEach(s => {
+    s.classList.toggle('hidden', !show.includes(s.id));
+  });
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+document.getElementById('as-of-date').textContent = DATA.asOf;
+document.getElementById('footer-date').textContent = DATA.asOf;
+
+renderTable('tbody-core',            DATA.core,           false);
+renderTable('tbody-private-client',  DATA.privateClient,  false);
+renderTable('tbody-private-capital', DATA.privateCapital, false);
+renderTable('tbody-retirement',      DATA.retirement,     false);
+renderTable('tbody-sma',             DATA.sma,            false);
+renderTable('tbody-index',           DATA.index,          true);
+</script>
+</body>
+</html>
