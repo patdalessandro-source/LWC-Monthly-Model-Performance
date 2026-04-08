@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model Performance | LiveWell Capital</title>
+<style>
+  :root {
+    --navy:     #163F5F;
+    --blue:     #2F6FA3;
+    --ltblue:   #A9C8E3;
+    --charcoal: #2B2B2B;
+    --offwhite: #F7F8FA;
+    --ltgray:   #E8ECF0;
+    --white:    #FFFFFF;
+    --red:      #C0392B;
+    --green:    #1A6B3C;
+    --font:     'Helvetica Neue', Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--offwhite); color: var(--charcoal); font-size: 14px; line-height: 1.45; }
+
+  .topbar { background: var(--navy); color: var(--ltblue); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; text-align: center; padding: 7px 24px; }
+
+  header { background: var(--white); border-bottom: 3px solid var(--navy); padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .logo-lockup { display: flex; align-items: center; gap: 14px; }
+  .logo-mark { width: 54px; height: 54px; border: 2px solid var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; }
+  .logo-mark::after { content: ''; position: absolute; width: 44px; height: 44px; border: 1.5px solid var(--ltblue); border-radius: 50%; }
+  .logo-lw { display: flex; flex-direction: column; line-height: 1; font-size: 15px; font-weight: 700; color: var(--navy); letter-spacing: 3px; text-align: center; }
+  .logo-lw span { display: block; }
+  .brand-name { font-size: 22px; font-weight: 700; letter-spacing: 4px; color: var(--navy); display: block; line-height: 1; }
+  .brand-cap  { font-size: 13px; letter-spacing: 6px; color: var(--navy); display: block; }
+  .brand-sub  { font-size: 8px; letter-spacing: 2px; color: var(--blue); display: block; margin-top: 3px; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .as-of { font-size: 11px; color: var(--blue); }
+  .as-of strong { color: var(--navy); }
+  .btn-download { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: var(--white); font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 10px 20px; transition: background 0.15s; }
+  .btn-download:hover { background: var(--blue); }
+
+  .page-title-band { background: var(--navy); padding: 32px 48px 28px; }
+  .page-title-band .eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--ltblue); margin-bottom: 6px; }
+  .page-title-band h1 { font-size: 34px; font-weight: 700; color: var(--white); }
+  .page-title-band p  { font-size: 13px; color: var(--ltblue); margin-top: 8px; max-width: 700px; line-height: 1.5; }
+
+  .filter-bar { background: var(--white); border-bottom: 1px solid var(--ltgray); padding: 0 48px; display: flex; overflow-x: auto; }
+  .filter-btn { font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--charcoal); background: none; border: none; border-bottom: 3px solid transparent; padding: 16px 20px 13px; cursor: pointer; white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
+  .filter-btn:hover { color: var(--blue); }
+  .filter-btn.active { color: var(--navy); border-bottom-color: var(--blue); }
+
+  main { padding: 32px 48px 64px; max-width: 1400px; margin: 0 auto; }
+
+  .section-label { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; margin-top: 36px; padding-bottom: 6px; border-bottom: 1px solid var(--ltgray); }
+  .section-label:first-child { margin-top: 0; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead tr { background: var(--navy); }
+  thead th { color: var(--white); font-weight: 700; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; padding: 11px 12px; text-align: right; white-space: nowrap; }
+  thead th:first-child { text-align: left; padding-left: 16px; min-width: 260px; }
+  thead th.sub { background: var(--blue); font-size: 9px; }
+
+  tbody tr { border-bottom: 1px solid var(--ltgray); transition: background 0.1s; }
+  tbody tr.clickable { cursor: pointer; }
+  tbody tr:nth-child(even) { background: var(--offwhite); }
+  tbody tr:nth-child(odd)  { background: var(--white); }
+  tbody tr.clickable:hover { background: #EBF3FA; }
+  tbody tr.active-row { background: #D6E9F5 !important; }
+
+  tbody td { padding: 10px 12px; text-align: right; color: var(--charcoal); white-space: nowrap; }
+  tbody td:first-child { text-align: left; padding-left: 16px; font-weight: 600; color: var(--navy); }
+  .pos  { color: var(--green); }
+  .neg  { color: var(--red); }
+  .na   { color: #aaa; font-style: italic; }
+  .exp  { color: var(--blue); font-size: 11.5px; }
+  .note { font-size: 9px; color: #aaa; font-weight: 400; }
+
+  /* Tearsheet */
+  #tearsheet-panel { display: none; margin-top: 28px; background: var(--white); border: 1px solid var(--ltgray); border-top: 4px solid var(--navy); padding: 32px 36px; position: relative; }
+  #tearsheet-panel.visible { display: block; }
+  .ts-close { position: absolute; top: 16px; right: 20px; font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); background: none; border: 1px solid var(--ltgray); padding: 6px 14px; cursor: pointer; }
+  .ts-close:hover { background: var(--offwhite); }
+  .ts-eyebrow { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
+  .ts-title   { font-size: 24px; font-weight: 700; color: var(--navy); }
+  .ts-meta    { font-size: 11px; color: #666; margin-top: 4px; }
+  .ts-link-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: var(--white); font-family: var(--font); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; padding: 10px 20px; margin-top: 14px; transition: background 0.15s; }
+  .ts-link-btn:hover { background: var(--navy); }
+  .ts-no-link { font-size: 11px; color: #aaa; font-style: italic; margin-top: 14px; display: inline-block; }
+  .ts-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 24px 0; }
+  .stat-tile { background: var(--offwhite); border-left: 3px solid var(--navy); padding: 14px 16px; }
+  .st-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
+  .st-val { font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1; }
+  .st-val.neg { color: var(--red); }
+  .st-val.pos { color: var(--green); }
+  .st-sub { font-size: 10px; color: #777; margin-top: 4px; }
+  .ts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .ts-chart-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy); margin-bottom: 16px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; border-bottom: 2px solid var(--navy); margin-bottom: 8px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; }
+  .bar { width: 100%; min-height: 2px; }
+  .bar-label-top { font-size: 9px; font-weight: 700; margin-bottom: 3px; white-space: nowrap; }
+  .bar-periods { display: flex; gap: 8px; }
+  .bar-period  { font-size: 9px; color: #777; text-align: center; flex: 1; }
+  .drawdown-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy); margin-bottom: 8px; }
+  .dd-track { background: var(--ltgray); height: 20px; width: 100%; overflow: hidden; }
+  .dd-fill  { background: var(--red); height: 100%; display: flex; align-items: center; padding-left: 8px; }
+  .dd-fill span { font-size: 10px; font-weight: 700; color: var(--white); white-space: nowrap; }
+  .dd-context { font-size: 10px; color: #888; margin-top: 6px; margin-bottom: 24px; }
+  .ts-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ts-table th { background: var(--navy); color: var(--white); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 12px; text-align: right; }
+  .ts-table th:first-child { text-align: left; }
+  .ts-table td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--ltgray); }
+  .ts-table td:first-child { text-align: left; color: var(--navy); font-weight: 600; }
+  .ts-table tr:nth-child(even) { background: var(--offwhite); }
+
+  .data-section.hidden { display: none; }
+  .index-note { font-size: 10px; color: #888; margin-bottom: 10px; font-style: italic; }
+
+  .disclaimer { background: var(--white); border-top: 1px solid var(--ltgray); padding: 24px 48px; font-size: 10px; color: #888; line-height: 1.6; max-width: 1400px; margin: 0 auto; }
+  .disclaimer strong { color: var(--navy); }
+  footer { background: var(--navy); padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .ft-brand { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--white); }
+  .ft-sub   { font-size: 9px; letter-spacing: 1.5px; color: var(--ltblue); text-transform: uppercase; margin-top: 3px; }
+  .ft-right { font-size: 10px; color: var(--ltblue); text-align: right; line-height: 1.7; }
+
+  /* ── Mobile Card Grid ── */
+  .card-grid { display: none; }
+
+  .model-card {
+    background: var(--white);
+    border: 1px solid var(--ltgray);
+    border-top: 3px solid var(--navy);
+    padding: 16px;
+    cursor: pointer;
+    transition: border-top-color 0.15s, box-shadow 0.15s;
+  }
+  .model-card:hover, .model-card.active-card {
+    border-top-color: var(--blue);
+    box-shadow: 0 2px 8px rgba(22,63,95,0.10);
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .card-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+  .card-stat { text-align: center; }
+  .card-stat-label {
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #888;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .card-stat-val {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--ltgray);
+    padding-top: 8px;
+    margin-top: 6px;
+  }
+  .card-dd   { font-size: 10px; color: #888; }
+  .card-exp  { font-size: 10px; color: var(--blue); font-weight: 700; }
+  .card-tap  {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  @media (max-width: 768px) {
+    header, main, .filter-bar, .page-title-band, .disclaimer, footer { padding-left: 16px; padding-right: 16px; }
+    header { flex-wrap: wrap; gap: 12px; }
+    .page-title-band h1 { font-size: 24px; }
+    .ts-stats { grid-template-columns: repeat(2,1fr); }
+    .ts-grid  { grid-template-columns: 1fr; }
+    .header-right { flex-direction: column; align-items: flex-end; gap: 8px; }
+    /* swap table → cards for LWC model sections */
+    .table-wrap { display: none; }
+    .card-grid  { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    /* index + SMA: keep table, just scroll */
+    #sec-sma   .table-wrap,
+    #sec-index .table-wrap { display: block; }
+    #sec-sma   .card-grid,
+    #sec-index .card-grid  { display: none; }
+  }
+
+  @media (max-width: 900px) and (min-width: 769px) {
+    header, main, .filter-bar, .page-title-band, .disclaimer, footer { padding-left: 20px; padding-right: 20px; }
+    .ts-stats { grid-template-columns: repeat(2,1fr); }
+    .ts-grid  { grid-template-columns: 1fr; }
+    .header-right { flex-direction: column; align-items: flex-end; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">LiveWell Capital &nbsp;·&nbsp; Northwestern Mutual Private Client Group &nbsp;·&nbsp; For Advisor Use Only</div>
+
+<header>
+  <div class="logo-lockup">
+    <div class="logo-mark"><div class="logo-lw"><span>L</span><span>W</span></div></div>
+    <div>
+      <span class="brand-name">LIVE WELL</span>
+      <span class="brand-cap">CAPITAL</span>
+      <span class="brand-sub">Northwestern Mutual &nbsp;·&nbsp; Private Client Group</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="as-of">Data as of &nbsp;<strong>March 31, 2026</strong></div>
+    <a href="LWC_Model_Performance_4-1.pdf" class="btn-download" download>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Download PDF
+    </a>
+  </div>
+</header>
+
+<div class="page-title-band">
+  <div class="eyebrow">Performance &nbsp;·&nbsp; Monthly Update</div>
+  <h1>LWC Model Performance</h1>
+  <p>Total return data across all LiveWell Capital portfolio models and separately managed accounts. Click any row to view a detailed tearsheet. Updated monthly.</p>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active"  onclick="filterSection('all',this)">All Models</button>
+  <button class="filter-btn"         onclick="filterSection('core',this)">LWC Core</button>
+  <button class="filter-btn"         onclick="filterSection('private-client',this)">Private Client</button>
+  <button class="filter-btn"         onclick="filterSection('private-capital',this)">Private Capital</button>
+  <button class="filter-btn"         onclick="filterSection('retirement',this)">Retirement Income</button>
+  <button class="filter-btn"         onclick="filterSection('sma',this)">Separately Managed Accounts</button>
+  <button class="filter-btn"         onclick="filterSection('index',this)">Index Benchmarks</button>
+</div>
+
+<main>
+
+<!-- LWC CORE -->
+<div class="data-section" id="sec-core">
+  <div class="section-label">LWC Core Portfolios</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Portfolio</th><th>1 Mo</th><th>YTD</th><th>1 Year</th><th>3 Year</th><th>5 Year</th><th>10 Year</th><th>Max DD (10yr)</th><th class="sub">Net Exp Ratio</th></tr></thead>
+    <tbody>
+      <tr class="clickable" onclick="openTS('core',0)"><td>.LWC Core 20/80</td><td class="neg">-2.75%</td><td class="pos">+0.14%</td><td class="pos">+6.59%</td><td class="pos">+5.07%</td><td class="pos">+2.45%</td><td class="pos">+4.39%</td><td class="neg">-13.7%</td><td class="exp">0.20%</td></tr>
+      <tr class="clickable" onclick="openTS('core',1)"><td>.LWC Core 30/70</td><td class="neg">-2.85%</td><td class="pos">+0.50%</td><td class="pos">+8.21%</td><td class="pos">+6.11%</td><td class="pos">+3.30%</td><td class="pos">+5.07%</td><td class="neg">-14.4%</td><td class="exp">0.20%</td></tr>
+      <tr class="clickable" onclick="openTS('core',2)"><td>.LWC Core 40/60</td><td class="neg">-3.18%</td><td class="pos">+1.30%</td><td class="pos">+10.35%</td><td class="pos">+7.24%</td><td class="pos">+3.94%</td><td class="pos">+5.94%</td><td class="neg">-15.9%</td><td class="exp">0.20%</td></tr>
+      <tr class="clickable" onclick="openTS('core',3)"><td>.LWC Core 50/50</td><td class="neg">-3.48%</td><td class="pos">+0.73%</td><td class="pos">+11.10%</td><td class="pos">+8.26%</td><td class="pos">+4.70%</td><td class="pos">+6.79%</td><td class="neg">-17.5%</td><td class="exp">0.19%</td></tr>
+      <tr class="clickable" onclick="openTS('core',4)"><td>.LWC Core 60/40</td><td class="neg">-3.76%</td><td class="pos">+0.81%</td><td class="pos">+12.88%</td><td class="pos">+9.58%</td><td class="pos">+5.58%</td><td class="pos">+7.69%</td><td class="neg">-20.7%</td><td class="exp">0.19%</td></tr>
+      <tr class="clickable" onclick="openTS('core',5)"><td>.LWC Core 70/30</td><td class="neg">-4.15%</td><td class="pos">+0.73%</td><td class="pos">+14.63%</td><td class="pos">+10.93%</td><td class="pos">+6.49%</td><td class="pos">+8.82%</td><td class="neg">-24.0%</td><td class="exp">0.18%</td></tr>
+      <tr class="clickable" onclick="openTS('core',6)"><td>.LWC Core 80/20</td><td class="neg">-4.64%</td><td class="pos">+0.82%</td><td class="pos">+16.62%</td><td class="pos">+12.10%</td><td class="pos">+7.19%</td><td class="pos">+9.56%</td><td class="neg">-27.4%</td><td class="exp">0.19%</td></tr>
+      <tr class="clickable" onclick="openTS('core',7)"><td>.LWC Core 90/10</td><td class="neg">-5.04%</td><td class="pos">+0.87%</td><td class="pos">+18.53%</td><td class="pos">+13.32%</td><td class="pos">+7.93%</td><td class="pos">+10.36%</td><td class="neg">-30.9%</td><td class="exp">0.18%</td></tr>
+      <tr class="clickable" onclick="openTS('core',8)"><td>.LWC Core 98/2</td><td class="neg">-5.64%</td><td class="pos">+0.68%</td><td class="pos">+20.98%</td><td class="pos">+14.99%</td><td class="pos">+8.80%</td><td class="pos">+10.98%</td><td class="neg">-34.0%</td><td class="exp">0.18%</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+  <div class="card-grid" id="cards-core">
+    <div class="model-card" onclick="openTS('core',0)"><div class="card-name">.LWC Core 20/80</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-2.75%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.14%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+6.59%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+5.07%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -13.7%</span><span class="card-exp">Exp: 0.20%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',1)"><div class="card-name">.LWC Core 30/70</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-2.85%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.50%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+8.21%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+6.11%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -14.4%</span><span class="card-exp">Exp: 0.20%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',2)"><div class="card-name">.LWC Core 40/60</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.18%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+1.30%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+10.35%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+7.24%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -15.9%</span><span class="card-exp">Exp: 0.20%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',3)"><div class="card-name">.LWC Core 50/50</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.48%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.73%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+11.10%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+8.26%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -17.5%</span><span class="card-exp">Exp: 0.19%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',4)"><div class="card-name">.LWC Core 60/40</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.76%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.81%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+12.88%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+9.58%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -20.7%</span><span class="card-exp">Exp: 0.19%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',5)"><div class="card-name">.LWC Core 70/30</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.15%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.73%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+14.63%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+10.93%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -24.0%</span><span class="card-exp">Exp: 0.18%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',6)"><div class="card-name">.LWC Core 80/20</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.64%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.82%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+16.62%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+12.10%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -27.4%</span><span class="card-exp">Exp: 0.19%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',7)"><div class="card-name">.LWC Core 90/10</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-5.04%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.87%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+18.53%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+13.32%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -30.9%</span><span class="card-exp">Exp: 0.18%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('core',8)"><div class="card-name">.LWC Core 98/2</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-5.64%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.68%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+20.98%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+14.99%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -34.0%</span><span class="card-exp">Exp: 0.18%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+  </div>
+</div>
+
+<!-- PRIVATE CLIENT -->
+<div class="data-section" id="sec-private-client">
+  <div class="section-label">LWC Private Client Portfolios</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Portfolio</th><th>1 Mo</th><th>YTD</th><th>1 Year</th><th>3 Year</th><th>5 Year</th><th>10 Year</th><th>Max DD (10yr)</th><th class="sub">Net Exp Ratio</th></tr></thead>
+    <tbody>
+      <tr class="clickable" onclick="openTS('pc',0)"><td>.LWC Private Client 60/40</td><td class="neg">-3.67%</td><td class="pos">+0.08%</td><td class="pos">+12.49%</td><td class="pos">+10.22%</td><td class="pos">+5.99%</td><td class="pos">+7.97%</td><td class="neg">-20.7%</td><td class="exp">0.18%</td></tr>
+      <tr class="clickable" onclick="openTS('pc',1)"><td>.LWC Private Client 70/30</td><td class="neg">-4.08%</td><td class="pos">+0.05%</td><td class="pos">+14.27%</td><td class="pos">+11.73%</td><td class="pos">+7.04%</td><td class="pos">+9.21%</td><td class="neg">-28.0%</td><td class="exp">0.17%</td></tr>
+      <tr class="clickable" onclick="openTS('pc',2)"><td>.LWC Private Client 80/20</td><td class="neg">-4.54%</td><td class="pos">+0.12%</td><td class="pos">+15.82%</td><td class="pos">+12.96%</td><td class="pos">+7.91%</td><td class="pos">+10.16%</td><td class="neg">-30.9%</td><td class="exp">0.18%</td></tr>
+      <tr class="clickable" onclick="openTS('pc',3)"><td>.LWC Private Client 90/10</td><td class="neg">-4.91%</td><td class="pos">+0.29%</td><td class="pos">+17.92%</td><td class="pos">+14.16%</td><td class="pos">+8.65%</td><td class="pos">+10.73%</td><td class="neg">-32.9%</td><td class="exp">0.17%</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+  <div class="card-grid">
+    <div class="model-card" onclick="openTS('pc',0)"><div class="card-name">.LWC Private Client 60/40</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.67%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.08%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+12.49%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+10.22%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -20.7%</span><span class="card-exp">Exp: 0.18%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('pc',1)"><div class="card-name">.LWC Private Client 70/30</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.08%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.05%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+14.27%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+11.73%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -28.0%</span><span class="card-exp">Exp: 0.17%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('pc',2)"><div class="card-name">.LWC Private Client 80/20</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.54%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.12%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+15.82%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+12.96%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -30.9%</span><span class="card-exp">Exp: 0.18%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('pc',3)"><div class="card-name">.LWC Private Client 90/10</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.91%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.29%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+17.92%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+14.16%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -32.9%</span><span class="card-exp">Exp: 0.17%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+  </div>
+</div>
+
+<!-- PRIVATE CAPITAL -->
+<div class="data-section" id="sec-private-capital">
+  <div class="section-label">LWC Private Capital Portfolios</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Portfolio</th><th>1 Mo</th><th>YTD</th><th>1 Year</th><th>3 Year</th><th>5 Year</th><th>10 Year</th><th>Max DD (10yr)</th><th class="sub">Net Exp Ratio</th></tr></thead>
+    <tbody>
+      <tr class="clickable" onclick="openTS('pcap',0)"><td>.LWC Private Capital 10% <span class="note">(60/40 Risk Equiv)</span></td><td class="neg">-3.71%</td><td class="pos">+0.16%</td><td class="pos">+12.05%</td><td class="pos">+10.58%</td><td class="pos">+6.04%</td><td class="pos">+8.05%</td><td class="neg">-22.8%</td><td class="exp">0.30%</td></tr>
+      <tr class="clickable" onclick="openTS('pcap',1)"><td>.LWC Private Capital 15% <span class="note">(70/30 Risk Equiv)</span></td><td class="neg">-4.13%</td><td class="neg">-0.53%</td><td class="pos">+13.05%</td><td class="pos">+11.67%</td><td class="pos">+6.74%</td><td class="pos">+8.88%</td><td class="neg">-26.1%</td><td class="exp">0.32%</td></tr>
+      <tr class="clickable" onclick="openTS('pcap',2)"><td>.LWC Private Capital 20% <span class="note">(80/20 Risk Equiv)</span></td><td class="neg">-4.73%</td><td class="neg">-1.08%</td><td class="pos">+14.02%</td><td class="pos">+12.34%</td><td class="pos">+6.77%</td><td class="pos">+9.26%</td><td class="neg">-30.2%</td><td class="exp">0.40%</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+  <div class="card-grid">
+    <div class="model-card" onclick="openTS('pcap',0)"><div class="card-name">.LWC Private Capital 10% <span style="font-weight:400;font-size:11px;color:#888">(60/40 Risk Equiv)</span></div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.71%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.16%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+12.05%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+10.58%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -22.8%</span><span class="card-exp">Exp: 0.30%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('pcap',1)"><div class="card-name">.LWC Private Capital 15% <span style="font-weight:400;font-size:11px;color:#888">(70/30 Risk Equiv)</span></div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.13%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val neg">-0.53%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+13.05%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+11.67%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -26.1%</span><span class="card-exp">Exp: 0.32%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('pcap',2)"><div class="card-name">.LWC Private Capital 20% <span style="font-weight:400;font-size:11px;color:#888">(80/20 Risk Equiv)</span></div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-4.73%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val neg">-1.08%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+14.02%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+12.34%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -30.2%</span><span class="card-exp">Exp: 0.40%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+  </div>
+</div>
+
+<!-- RETIREMENT -->
+<div class="data-section" id="sec-retirement">
+  <div class="section-label">LWC Retirement Income Portfolios</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Portfolio</th><th>1 Mo</th><th>YTD</th><th>1 Year</th><th>3 Year</th><th>5 Year</th><th>10 Year</th><th>Max DD (10yr)</th><th class="sub">Net Exp Ratio</th></tr></thead>
+    <tbody>
+      <tr class="clickable" onclick="openTS('ret',0)"><td>.LWC 5% Retirement Income (50/50)</td><td class="neg">-3.14%</td><td class="pos">+0.82%</td><td class="pos">+11.64%</td><td class="pos">+8.69%</td><td class="pos">+4.43%</td><td class="pos">+6.51%</td><td class="neg">-19.1%</td><td class="exp">0.16%</td></tr>
+      <tr class="clickable" onclick="openTS('ret',1)"><td>.LWC 4% Retirement Income (60/40)</td><td class="neg">-3.50%</td><td class="pos">+0.87%</td><td class="pos">+13.35%</td><td class="pos">+9.89%</td><td class="pos">+5.36%</td><td class="pos">+7.47%</td><td class="neg">-19.8%</td><td class="exp">0.17%</td></tr>
+      <tr class="clickable" onclick="openTS('ret',2)"><td>.LWC 3% Retirement Income (70/30)</td><td class="neg">-3.96%</td><td class="pos">+0.78%</td><td class="pos">+15.05%</td><td class="pos">+11.24%</td><td class="pos">+6.37%</td><td class="pos">+8.49%</td><td class="neg">-20.6%</td><td class="exp">0.17%</td></tr>
+      <tr class="clickable" onclick="openTS('ret',3)"><td>.LWC 7-Year Protected Income</td><td class="neg">-1.32%</td><td class="neg">-0.28%</td><td class="pos">+4.29%</td><td class="pos">+4.18%</td><td class="pos">+1.24%</td><td class="pos">+2.48%</td><td class="neg">-15.5%</td><td class="exp">0.15%</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+  <div class="card-grid">
+    <div class="model-card" onclick="openTS('ret',0)"><div class="card-name">.LWC 5% Retirement Income (50/50)</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.14%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.82%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+11.64%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+8.69%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -19.1%</span><span class="card-exp">Exp: 0.16%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('ret',1)"><div class="card-name">.LWC 4% Retirement Income (60/40)</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.50%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.87%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+13.35%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+9.89%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -19.8%</span><span class="card-exp">Exp: 0.17%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('ret',2)"><div class="card-name">.LWC 3% Retirement Income (70/30)</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-3.96%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val pos">+0.78%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+15.05%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+11.24%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -20.6%</span><span class="card-exp">Exp: 0.17%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+    <div class="model-card" onclick="openTS('ret',3)"><div class="card-name">.LWC 7-Year Protected Income</div><div class="card-stats"><div class="card-stat"><span class="card-stat-label">1 Mo</span><span class="card-stat-val neg">-1.32%</span></div><div class="card-stat"><span class="card-stat-label">YTD</span><span class="card-stat-val neg">-0.28%</span></div><div class="card-stat"><span class="card-stat-label">1 Yr</span><span class="card-stat-val pos">+4.29%</span></div><div class="card-stat"><span class="card-stat-label">3 Yr</span><span class="card-stat-val pos">+4.18%</span></div></div><div class="card-footer"><span class="card-dd">Max DD: -15.5%</span><span class="card-exp">Exp: 0.15%</span><span class="card-tap">Tap for tearsheet ›</span></div></div>
+  </div>
+</div>
+
+<!-- SMA -->
+<div class="data-section" id="sec-sma">
+  <div class="section-label">Separately Managed Accounts</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Account</th><th>1 Mo</th><th>YTD</th><th>1 Year</th><th>3 Year</th><th>5 Year</th><th>10 Year</th><th>Max DD (10yr)</th><th class="sub">Mgmt Fee</th></tr></thead>
+    <tbody>
+      <tr><td>Capital Group Global Equity SMA</td><td class="pos">+1.14%</td><td class="pos">+3.71%</td><td class="pos">+25.65%</td><td class="pos">+18.75%</td><td class="pos">+11.30%</td><td class="pos">+13.68%</td><td class="neg">-26.5%</td><td class="exp">0.37%</td></tr>
+      <tr><td>Capital Group Global Growth SMA</td><td class="neg">-0.26%</td><td class="pos">+1.90%</td><td class="pos">+22.09%</td><td class="pos">+20.97%</td><td class="pos">+10.25%</td><td class="pos">+15.26%</td><td class="neg">-33.4%</td><td class="exp">0.37%</td></tr>
+      <tr><td>Russell Personalized DI Core Equity SMA <span class="note">(Incept 6/1/2022)</span></td><td class="pos">+0.90%</td><td class="pos">+20.50%</td><td class="pos">+20.50%</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="na">—</td><td class="exp">0.22%</td></tr>
+      <tr><td>Parametric CC US Large Cap — S&amp;P 500</td><td class="neg">-0.66%</td><td class="pos">+0.88%</td><td class="pos">+18.11%</td><td class="pos">+21.72%</td><td class="pos">+14.09%</td><td class="pos">+15.41%</td><td class="neg">-24.0%</td><td class="exp">0.22%</td></tr>
+      <tr><td>Parametric CC US Broad Cap — Russell 3000</td><td class="neg">-0.41%</td><td class="pos">+1.12%</td><td class="pos">+16.81%</td><td class="pos">+20.71%</td><td class="pos">+12.86%</td><td class="pos">+15.01%</td><td class="neg">-24.7%</td><td class="exp">0.22%</td></tr>
+      <tr><td>NMWMC Interm (1-10) Muni Bond Port</td><td class="pos">+0.77%</td><td class="pos">+1.49%</td><td class="pos">+4.37%</td><td class="pos">+3.57%</td><td class="pos">+1.12%</td><td class="pos">+1.85%</td><td class="neg">-11.0%</td><td class="exp">0.25%</td></tr>
+      <tr><td>NMWMC Intermediate (1-10) Govt/Credit <span class="note">(Incept 7/1/2016)</span></td><td class="pos">+1.58%</td><td class="pos">+1.31%</td><td class="pos">+7.31%</td><td class="pos">+6.26%</td><td class="pos">+1.20%</td><td class="na">—</td><td class="na">—</td><td class="exp">0.25%</td></tr>
+      <tr><td>Parametric CC Technology 100 — TMW <span class="note">(Incept 3/1/2017)</span></td><td class="neg">-2.48%</td><td class="neg">-1.34%</td><td class="pos">+21.32%</td><td class="pos">+29.18%</td><td class="pos">+15.52%</td><td class="na">—</td><td class="na">—</td><td class="exp">0.25%</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- INDEXES -->
+<div class="data-section" id="sec-index">
+  <div class="section-label">Index Benchmarks</div>
+  <p class="index-note">Indexes are unmanaged and do not reflect fees or expenses. Provided for reference only.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Index</th><th>1 Mo</th><th>YTD</th><th>1 Year</th><th>3 Year</th><th>5 Year</th><th>10 Year</th><th>Max DD (10yr)</th><th class="sub">&nbsp;</th></tr></thead>
+    <tbody>
+      <tr><td>S&amp;P 500 Total Return</td><td class="neg">-4.98%</td><td class="neg">-4.33%</td><td class="pos">+17.80%</td><td class="pos">+18.32%</td><td class="pos">+12.06%</td><td class="pos">+14.16%</td><td class="neg">-33.8%</td><td class="na">—</td></tr>
+      <tr><td>S&amp;P 400 Total Return</td><td class="neg">-5.39%</td><td class="pos">+2.50%</td><td class="pos">+17.35%</td><td class="pos">+12.09%</td><td class="pos">+6.92%</td><td class="pos">+10.58%</td><td class="neg">-42.0%</td><td class="na">—</td></tr>
+      <tr><td>S&amp;P 600 Total Return</td><td class="neg">-4.07%</td><td class="pos">+3.51%</td><td class="pos">+20.50%</td><td class="pos">+10.51%</td><td class="pos">+4.49%</td><td class="pos">+9.90%</td><td class="neg">-44.4%</td><td class="na">—</td></tr>
+      <tr><td>MSCI EAFE Total Return</td><td class="neg">-10.19%</td><td class="neg">-1.12%</td><td class="pos">+21.88%</td><td class="pos">+14.19%</td><td class="pos">+8.45%</td><td class="pos">+8.91%</td><td class="neg">-33.9%</td><td class="na">—</td></tr>
+      <tr><td>MSCI Emerging Markets Total Return</td><td class="neg">-13.03%</td><td class="neg">-0.10%</td><td class="pos">+30.30%</td><td class="pos">+15.41%</td><td class="pos">+4.16%</td><td class="pos">+8.24%</td><td class="neg">-38.6%</td><td class="na">—</td></tr>
+      <tr><td>Dow Jones US Select REIT Index TR</td><td class="neg">-5.67%</td><td class="pos">+4.64%</td><td class="pos">+7.23%</td><td class="pos">+9.15%</td><td class="pos">+5.59%</td><td class="pos">+4.76%</td><td class="neg">-44.3%</td><td class="na">—</td></tr>
+      <tr><td>Bloomberg Commodity Index TR</td><td class="pos">+11.50%</td><td class="pos">+24.41%</td><td class="pos">+32.29%</td><td class="pos">+13.88%</td><td class="pos">+14.04%</td><td class="pos">+8.02%</td><td class="neg">-67.3%</td><td class="na">—</td></tr>
+      <tr><td>Bloomberg US Treasury Bills 1-3 Month</td><td class="pos">+0.30%</td><td class="pos">+0.88%</td><td class="pos">+4.12%</td><td class="pos">+4.84%</td><td class="pos">+3.42%</td><td class="pos">+2.26%</td><td>0.0%</td><td class="na">—</td></tr>
+      <tr><td>Bloomberg US Aggregate</td><td class="neg">-1.76%</td><td class="neg">-0.05%</td><td class="pos">+4.35%</td><td class="pos">+3.63%</td><td class="pos">+0.31%</td><td class="pos">+1.70%</td><td class="neg">-18.4%</td><td class="na">—</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- TEARSHEET PANEL -->
+<div id="tearsheet-panel">
+  <button class="ts-close" onclick="closeTS()">&#10005; &nbsp;Close</button>
+  <div class="ts-eyebrow">Portfolio Tearsheet</div>
+  <div class="ts-title" id="ts-title">—</div>
+  <div class="ts-meta">Data as of March 31, 2026</div>
+  <div id="ts-link-slot"></div>
+  <div class="ts-stats" id="ts-stats"></div>
+  <div class="ts-grid">
+    <div>
+      <div class="ts-chart-title">Total Return by Period</div>
+      <div class="bar-chart"  id="ts-bars"></div>
+      <div class="bar-periods" id="ts-periods"></div>
+    </div>
+    <div>
+      <div class="drawdown-label">Max Drawdown (10-Year)</div>
+      <div class="dd-track"><div class="dd-fill" id="dd-fill"><span id="dd-val">—</span></div></div>
+      <div class="dd-context">Max peak-to-trough decline over trailing 10-year period</div>
+      <div class="ts-chart-title" style="margin-top:24px">Full Return Summary</div>
+      <table class="ts-table" id="ts-full"></table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div class="disclaimer">
+  <strong>Important Disclosures:</strong> Past performance is not indicative of future results. All returns are total return, net of fund-level expenses. The Net Expense Ratio reflects fund-level costs and does not include advisory fees, which vary by client. Max Drawdown reflects the largest peak-to-trough decline over the trailing 10-year period. Separately Managed Accounts show a Management Fee in addition to underlying investment costs. Index returns are provided for informational purposes only; indexes are unmanaged, do not incur fees, and cannot be invested in directly. Portfolio inception dates vary; periods prior to inception are not shown. This material is for advisor use only and is not intended for distribution to clients or the general public. LiveWell Capital is a wealth management practice affiliated with Northwestern Mutual and NMFCO.
+</div>
+
+<footer>
+  <div>
+    <div class="ft-brand">LiveWell Capital</div>
+    <div class="ft-sub">Northwestern Mutual &nbsp;·&nbsp; Private Client Group</div>
+  </div>
+  <div class="ft-right">Data as of March 31, 2026<br>Updated Monthly &nbsp;·&nbsp; For Advisor Use Only</div>
+</footer>
+
+<script>
+const SP = "https://nmfco.sharepoint.com/:b:/r/sites/ec-lwc/Shared%20Documents/Operations/Portfolio%20Resources/Models%20for%20Y-Charts/Tearsheets%20Y-Charts%20ENV2%20models/";
+function sp(f){ return SP + encodeURIComponent(f) + "?csf=1&web=1"; }
+
+const MODELS = {
+  core: [
+    { name:".LWC Core 20/80",  mo1:-2.75, ytd:0.14,  y1:6.59,  y3:5.07,  y5:2.45,  y10:4.39,  maxdd:-13.7, exp:0.20, ts:sp(".LWC Core 2080.pdf") },
+    { name:".LWC Core 30/70",  mo1:-2.85, ytd:0.50,  y1:8.21,  y3:6.11,  y5:3.30,  y10:5.07,  maxdd:-14.4, exp:0.20, ts:sp(".LWC Core 3070.pdf") },
+    { name:".LWC Core 40/60",  mo1:-3.18, ytd:1.30,  y1:10.35, y3:7.24,  y5:3.94,  y10:5.94,  maxdd:-15.9, exp:0.20, ts:sp(".LWC Core 4060.pdf") },
+    { name:".LWC Core 50/50",  mo1:-3.48, ytd:0.73,  y1:11.10, y3:8.26,  y5:4.70,  y10:6.79,  maxdd:-17.5, exp:0.19, ts:sp(".LWC Core 5050.pdf") },
+    { name:".LWC Core 60/40",  mo1:-3.76, ytd:0.81,  y1:12.88, y3:9.58,  y5:5.58,  y10:7.69,  maxdd:-20.7, exp:0.19, ts:sp(".LWC Core 6040.pdf") },
+    { name:".LWC Core 70/30",  mo1:-4.15, ytd:0.73,  y1:14.63, y3:10.93, y5:6.49,  y10:8.82,  maxdd:-24.0, exp:0.18, ts:sp(".LWC Core 7030.pdf") },
+    { name:".LWC Core 80/20",  mo1:-4.64, ytd:0.82,  y1:16.62, y3:12.10, y5:7.19,  y10:9.56,  maxdd:-27.4, exp:0.19, ts:sp(".LWC Core 8020.pdf") },
+    { name:".LWC Core 90/10",  mo1:-5.04, ytd:0.87,  y1:18.53, y3:13.32, y5:7.93,  y10:10.36, maxdd:-30.9, exp:0.18, ts:sp(".LWC Core 9010.pdf") },
+    { name:".LWC Core 98/2",   mo1:-5.64, ytd:0.68,  y1:20.98, y3:14.99, y5:8.80,  y10:10.98, maxdd:-34.0, exp:0.18, ts:sp(".LWC Core 982.pdf") },
+  ],
+  pc: [
+    { name:".LWC Private Client 60/40", mo1:-3.67, ytd:0.08, y1:12.49, y3:10.22, y5:5.99, y10:7.97,  maxdd:-20.7, exp:0.18, ts:sp(".LWC Private Client 6040.pdf") },
+    { name:".LWC Private Client 70/30", mo1:-4.08, ytd:0.05, y1:14.27, y3:11.73, y5:7.04, y10:9.21,  maxdd:-28.0, exp:0.17, ts:sp(".LWC Private Client 7030.pdf") },
+    { name:".LWC Private Client 80/20", mo1:-4.54, ytd:0.12, y1:15.82, y3:12.96, y5:7.91, y10:10.16, maxdd:-30.9, exp:0.18, ts:sp(".LWC Private Client 8020.pdf") },
+    { name:".LWC Private Client 90/10", mo1:-4.91, ytd:0.29, y1:17.92, y3:14.16, y5:8.65, y10:10.73, maxdd:-32.9, exp:0.17, ts:sp(".LWC Private Client 9010.pdf") },
+  ],
+  pcap: [
+    { name:".LWC Private Capital 10%", mo1:-3.71, ytd:0.16,  y1:12.05, y3:10.58, y5:6.04, y10:8.05, maxdd:-22.8, exp:0.30, ts:sp("LWC Private Capital 10% 60_40 Risk Equivalent.pdf") },
+    { name:".LWC Private Capital 15%", mo1:-4.13, ytd:-0.53, y1:13.05, y3:11.67, y5:6.74, y10:8.88, maxdd:-26.1, exp:0.32, ts:sp("LWC Private Capital 15% 70_30 Risk Equivalent.pdf") },
+    { name:".LWC Private Capital 20%", mo1:-4.73, ytd:-1.08, y1:14.02, y3:12.34, y5:6.77, y10:9.26, maxdd:-30.2, exp:0.40, ts:sp("LWC Private Capital 20% 80_20 Risk Equivalent.pdf") },
+  ],
+  ret: [
+    { name:".LWC 5% Retirement Income (50/50)", mo1:-3.14, ytd:0.82,  y1:11.64, y3:8.69,  y5:4.43, y10:6.51, maxdd:-19.1, exp:0.16, ts:sp("5% Retirement Income 5050.pdf") },
+    { name:".LWC 4% Retirement Income (60/40)", mo1:-3.50, ytd:0.87,  y1:13.35, y3:9.89,  y5:5.36, y10:7.47, maxdd:-19.8, exp:0.17, ts:sp("4% Retirement Income 6040.pdf") },
+    { name:".LWC 3% Retirement Income (70/30)", mo1:-3.96, ytd:0.78,  y1:15.05, y3:11.24, y5:6.37, y10:8.49, maxdd:-20.6, exp:0.17, ts:sp("3% Retirement Income 7030.pdf") },
+    { name:".LWC 7-Year Protected Income",       mo1:-1.32, ytd:-0.28, y1:4.29,  y3:4.18,  y5:1.24, y10:2.48, maxdd:-15.5, exp:0.15, ts:sp(".LWC 7 Year Protected Income.pdf") },
+  ]
+};
+
+function fv(v){ if(v===null||v===undefined) return '—'; return (v>0?'+':'')+v.toFixed(2)+'%'; }
+
+let activeRow = null;
+
+function openTS(group, idx) {
+  const r = MODELS[group][idx];
+  const secMap = {core:'sec-core', pc:'sec-private-client', pcap:'sec-private-capital', ret:'sec-retirement'};
+
+  if(activeRow) activeRow.classList.remove('active-row');
+  const rows = document.querySelectorAll('#'+secMap[group]+' tbody tr');
+  if(rows[idx]){ rows[idx].classList.add('active-row'); activeRow = rows[idx]; }
+
+  document.getElementById('ts-title').textContent = r.name;
+  document.getElementById('ts-link-slot').innerHTML = r.ts
+    ? `<a href="${r.ts}" target="_blank" rel="noopener" class="ts-link-btn">
+         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 5.5l2.5 2.5 2.5-2.5M1.5 10.5h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+         View YCharts Tearsheet (SharePoint)
+       </a>`
+    : '<span class="ts-no-link">Tearsheet not available for this account</span>';
+
+  const tiles = [['1 Month',r.mo1],['YTD',r.ytd],['1 Year',r.y1],['3 Year',r.y3]];
+  document.getElementById('ts-stats').innerHTML = tiles.map(([lbl,v])=>{
+    const c = v===null?'':v>0?'pos':'neg';
+    return `<div class="stat-tile"><div class="st-label">${lbl}</div><div class="st-val ${c}">${fv(v)}</div><div class="st-sub">Total Return</div></div>`;
+  }).join('');
+
+  const periods = [['1 Mo',r.mo1],['YTD',r.ytd],['1 Yr',r.y1],['3 Yr',r.y3],['5 Yr',r.y5],['10 Yr',r.y10]].filter(p=>p[1]!==null&&p[1]!==undefined);
+  const maxAbs = Math.max(...periods.map(p=>Math.abs(p[1])),1);
+  const barsEl = document.getElementById('ts-bars');
+  const perdsEl = document.getElementById('ts-periods');
+  barsEl.innerHTML = ''; perdsEl.innerHTML = '';
+  periods.forEach(([lbl,v])=>{
+    const h = Math.max(Math.round(Math.abs(v)/maxAbs*130),3);
+    const col = v>=0 ? 'var(--navy)' : 'var(--red)';
+    const g = document.createElement('div'); g.className='bar-group';
+    g.innerHTML = `<div class="bar-label-top" style="color:${col}">${fv(v)}</div><div class="bar" style="height:${h}px;background:${col}"></div>`;
+    barsEl.appendChild(g);
+    const p = document.createElement('div'); p.className='bar-period'; p.textContent=lbl;
+    perdsEl.appendChild(p);
+  });
+
+  const dd = r.maxdd;
+  document.getElementById('dd-fill').style.width = dd!==null ? Math.min(Math.abs(dd),100)+'%' : '0%';
+  document.getElementById('dd-val').textContent = dd!==null ? dd.toFixed(1)+'%' : '—';
+
+  const fullRows = [['1 Month',r.mo1],['Year-to-Date',r.ytd],['1 Year',r.y1],['3 Year (Ann.)',r.y3],['5 Year (Ann.)',r.y5],['10 Year (Ann.)',r.y10],['Max Drawdown',r.maxdd],['Net Exp Ratio',r.exp]];
+  document.getElementById('ts-full').innerHTML = '<thead><tr><th>Period</th><th>Return</th></tr></thead><tbody>'
+    + fullRows.map(([lbl,v])=>`<tr><td>${lbl}</td><td style="text-align:right">${fv(v)}</td></tr>`).join('')
+    + '</tbody>';
+
+  const panel = document.getElementById('tearsheet-panel');
+  panel.classList.add('visible');
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function closeTS(){
+  document.getElementById('tearsheet-panel').classList.remove('visible');
+  if(activeRow){ activeRow.classList.remove('active-row'); activeRow=null; }
+}
+
+function filterSection(which, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  closeTS();
+  const map = {
+    all:['sec-core','sec-private-client','sec-private-capital','sec-retirement','sec-sma','sec-index'],
+    core:['sec-core'], 'private-client':['sec-private-client'],
+    'private-capital':['sec-private-capital'], retirement:['sec-retirement'],
+    sma:['sec-sma'], index:['sec-index']
+  };
+  document.querySelectorAll('.data-section').forEach(s=>{
+    s.classList.toggle('hidden', !(map[which]||map.all).includes(s.id));
+  });
+}
+</script>
+</body>
+</html>
